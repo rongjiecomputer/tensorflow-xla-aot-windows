@@ -1,0 +1,6 @@
+*.ckpt
+*.h
+*.lib
+*.meta
+*.pb
+checkpoint
