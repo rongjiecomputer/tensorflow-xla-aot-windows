@@ -50,6 +50,8 @@ Some CMake flags you might want to use for faster build:
 - `-DLLVM_INCLUDE_UTILS=OFF`
 - `-DLLVM_INCLUDE_TOOLS=OFF`
 
+I prefer to use Ninja with CMake, but MSBuild with CMake should work too.
+
 ```
 C:\tensorflow>cd C:\llvm
 C:\llvm>mkdir build & cd build
@@ -63,21 +65,22 @@ Now LLVM headers and libraries are installed at `C:\tensorflow\llvm`.
 
 # Configure LLVM in Tensorflow
 
-Copy [`BUILD.bazel`](BUILD.bazel) and create an empty file named `WORKSPACE` at `C:\tensorflow\llvm`.
+Create an empty file named `WORKSPACE` and copy[`BUILD.bazel`](BUILD.bazel) and
+`WORKSPACE` to `C:\tensorflow\llvm`.
 
 # Configure Tensorflow
 
-From now on, we will need Bazel. If you have not install Bazel, download
-`bazel-0.9.0-windows-x86_64.exe` from https://github.com/bazelbuild/bazel/releases,
-rename it to `bazel.exe` and put it in `PATH`.
+From now on, we will need Bazel. If you have not installed Bazel, download
+`bazel-0.9.0-windows-x86_64.exe` from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put
+it in `PATH`.
 
-Due to https://github.com/bazelbuild/bazel/issues/4149 , we need to set `TMP`,
+Due to https://github.com/bazelbuild/bazel/issues/4149, we need to set `TMP`,
 `TEMP` and `TMPDIR` to shorter name like `C:\tmp`.
 
 Run `configure.py` (see https://www.tensorflow.org/install/install_sources).
 
-When you see the following message, I recommend using `/arch:AVX` or higher if your machine supports
-AVX. If not, just leave it blank. (1)
+When you see the following message, I recommend using `/arch:AVX` or higher if
+your machine supports AVX. If not, just leave it blank. (1)
 
 ```
 Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is -march=native]:
