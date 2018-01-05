@@ -11,14 +11,6 @@ llvm_targets = [
   "X86",
 ]
 
-filegroup(
-    name = "docker",
-    srcs = glob([
-        "utils/docker/build_docker_image.sh",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
 cc_library(
     name = "config",
     hdrs = [
