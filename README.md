@@ -89,7 +89,7 @@ rename it to `bazel.exe` and put it in `PATH`.
 >
 > As of the moment of writing this, building Tensorflow with Bazel on Windows
 > is still very experimental. There is no CI test that prevents anyone from
-> landing changes that will break Bazel build on Windows to so the build breaks
+> landing changes that will break Bazel build on Windows, so the build breaks
 > frequently.
 >
 > Go to https://ci.tensorflow.org/job/tf-master-win-bzl/ to check if the build
