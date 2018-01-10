@@ -3,13 +3,12 @@ import sys
 
 import tensorflow as tf
 
-from tensorflow.core.protobuf import saver_pb2
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.python.framework import ops
 from tensorflow.python.training import saver as saver_lib
 
-GRAPH_FILE = "mnist.pb"
-CKPT_FILE = "mnist.ckpt"
+GRAPH_FILE = "./mnist.pb"
+CKPT_FILE = "./mnist.ckpt"
 
 def main(_):
   mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
@@ -30,7 +29,7 @@ def main(_):
         tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
     train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
-    saver = saver_lib.Saver(write_version=saver_pb2.SaverDef.V1)
+    saver = saver_lib.Saver()
 
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())

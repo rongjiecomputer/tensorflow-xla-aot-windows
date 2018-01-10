@@ -1,4 +1,4 @@
-*.ckpt
+*.ckpt*
 *.h
 *.lib
 *.meta
