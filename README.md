@@ -4,6 +4,12 @@ To use Tensorflow XLA/AOT on Windows, we need `tfcompile` XLA AOT compiler to
 compile model into native code as well as some runtime libraries to build the
 final executable.
 
+Upstream tracking bug for Windows support is at https://github.com/tensorflow/tensorflow/issues/15213
+
+Note that XLA/AOT itself is experimental, there are things that do not work regardless
+of the target operating system. If you are sure the bug is only for Windows, comment at the
+tracking bug above.
+
 ## Get Tensorflow source code
 
 Currently XLA/AOT for Windows only works on the master branch
@@ -41,6 +47,11 @@ download it from
 
 Comment out this Bazel rule as we will not be building LLVM with Bazel.
 
+> Note:
+> 
+> Tensorflow updates the version of LLVM used quite frequently, so be prepared
+> to fetch and build LLVM again after merging commits from upstream.
+
 ## Configure and build LLVM with CMake.
 
 Some CMake flags you might want to use for faster build:
@@ -65,14 +76,24 @@ Now LLVM headers and libraries are installed at `C:\tensorflow\llvm`.
 
 # Configure LLVM in Tensorflow
 
-Create an empty file named `WORKSPACE` and copy[`BUILD.bazel`](BUILD.bazel) and
+Create an empty file named `WORKSPACE`, then copy[`BUILD.bazel`](BUILD.bazel) and
 `WORKSPACE` to `C:\tensorflow\llvm`.
 
 # Configure Tensorflow
 
 From now on, we will need Bazel. If you have not installed Bazel, download
-`bazel-0.9.0-windows-x86_64.exe` from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put
-it in `PATH`.
+`bazel-0.9.0-windows-x86_64.exe` from https://github.com/bazelbuild/bazel/releases,
+rename it to `bazel.exe` and put it in `PATH`.
+
+> Note:
+>
+> As of the moment of writing this, building Tensorflow with Bazel on Windows
+> is still very experimental. There is no CI test that prevents anyone from
+> landing changes that will break Bazel build on Windows to so the build breaks
+> frequently.
+>
+> Go to https://ci.tensorflow.org/job/tf-master-win-bzl/ to check if the build
+> history is blue (good) or red (bad).
 
 Due to https://github.com/bazelbuild/bazel/issues/4149, we need to set `TMP`,
 `TEMP` and `TMPDIR` to shorter name like `C:\tmp`.
@@ -90,7 +111,8 @@ Open `.tf_configure.bazelrc` with your text editor.
 
 Remove `-march=native` and replace it with the flag you entered in (1).
 
-Add the following code to `.tf_configure.bazelrc` until a better solution:
+Add the following code to `.tf_configure.bazelrc` until https://github.com/tensorflow/tensorflow/pull/15466
+decides a better solution to set up global compile flags:
 
 ```
 build --copt=-DPLATFORM_WINDOWS --copt=-DNOGDI
