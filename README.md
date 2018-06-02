@@ -19,71 +19,10 @@ C:\>git clone --depth 1 https://github.com/tensorflow/tensorflow
 C:\>cd tensorflow
 ```
 
-## Get LLVM source code
+## Configure Tensorflow
 
-Tensorflow has a custom Bazel BUILD file for LLVM, but only works for Linux and
-Mac OS. For now, we will be building LLVM with CMake and import binaries via
-another Bazel BUILD file.
-
-Open `tensorflow\workspace.bzl` with text editor, you should find a Bazel rule
-that downlaod and configure LLVM for Tensorflow.
-
-```
-tf_http_archive(
-    name = "llvm",
-    urls = [
-        "https://mirror.bazel.build/githubcom/llvm-mirror/llvm/archive/7e6fcc775f56cdeeae061f6f8071f5c103087330tar.gz",
-        "https://githubcom/llvm-mirror/llvm/archive/7e6fcc775f56cdeeae061f6f8071f5c103087330tar.gz",
-    ],
-    sha256 ="9478274a10d7f487e7ad878c8eec30398a54e07eb148867711cd9c6fe7ff5f59",
-    strip_prefix = "llvm-7e6fcc775f56cdeeae061f6f8071f5c103087330",
-    build_file = str(Label("//third_party/llvm:llvm.BUILD")),
-)
-```
-
-Download the LLVM archive and unpack it to `C:\llvm` (for the above case
-download it from
-`https://github.com/llvm-mirror/llvm/archive/7e6fcc775f56cdeeae061f6f8071f5c103087330.tar.gz`).
-
-Comment out this Bazel rule as we will not be building LLVM with Bazel.
-
-> Note:
-> 
-> Tensorflow updates the version of LLVM used quite frequently, so be prepared
-> to fetch and build LLVM again after merging commits from upstream.
-
-## Configure and build LLVM with CMake.
-
-Some CMake flags you might want to use for faster build:
-
-- `-DLLVM_INCLUDE_EXAMPLES=OFF`
-- `-DLLVM_INCLUDE_TESTS=OFF`
-- `-DLLVM_INCLUDE_UTILS=OFF`
-- `-DLLVM_INCLUDE_TOOLS=OFF`
-
-I prefer to use Ninja with CMake, but MSBuild with CMake should work too.
-
-```
-C:\tensorflow>cd C:\llvm
-C:\llvm>mkdir build & cd build
-C:\llvm\build>cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=C:\tensorflow\llvm -DCMAKE_BUILD_TYPE=Release
-C:\llvm\build>ninja
-C:\llvm\build>ninja install
-C:\llvm\build>cd C:\tensorflow
-```
-
-Now LLVM headers and libraries are installed at `C:\tensorflow\llvm`.
-
-# Configure LLVM in Tensorflow
-
-Create an empty file named `WORKSPACE`, then copy[`BUILD.bazel`](BUILD.bazel) and
-`WORKSPACE` to `C:\tensorflow\llvm`.
-
-# Configure Tensorflow
-
-From now on, we will need Bazel. If you have not installed Bazel, download
-`bazel-0.9.0-windows-x86_64.exe` from https://github.com/bazelbuild/bazel/releases,
-rename it to `bazel.exe` and put it in `PATH`.
+If you have not installed Bazel, download `bazel-0.14.0-windows-x86_64.exe`
+from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put it in `PATH`.
 
 > Note:
 >
@@ -100,39 +39,32 @@ Due to https://github.com/bazelbuild/bazel/issues/4149, we need to set `TMP`,
 
 Run `configure.py` (see https://www.tensorflow.org/install/install_sources).
 
-When you see the following message, I recommend using `/arch:AVX` or higher if
-your machine supports AVX. If not, just leave it blank. (1)
-
-```
-Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is -march=native]:
-```
-
 Open `.tf_configure.bazelrc` with your text editor.
-
-Remove `-march=native` and replace it with the flag you entered in (1).
 
 Add the following code to `.tf_configure.bazelrc` until https://github.com/tensorflow/tensorflow/pull/15466
 decides a better solution to set up global compile flags:
 
 ```
-build --copt=-DPLATFORM_WINDOWS --copt=-DNOGDI
-build --host_copt=-DPLATFORM_WINDOWS --host_copt=-DNOGDI
+build --copt=-DNOGDI
+build --host_copt=-DNOGDI
 ```
 
-Add the following code to `C:\tensorflow\WORKSPACE` so that `@llvm//*` will
-point to our prebuilt LLVM binaries:
+## Apply patch to build LLVM with Bazel on Windows
+
+I sent a PR to Tensorflow so that LLVM can be built directly with Bazel on Windows
+[tensorflow/tensorflow#18293](https://github.com/tensorflow/tensorflow/pull/18293).
+Before the PR is merged, you can download the patch and apply it yourself.
+
+https://patch-diff.githubusercontent.com/raw/tensorflow/tensorflow/pull/18293.patch
 
 ```
-local_repository(
-    name = "llvm",
-    path = "llvm",
-)
+C:\tensorflow>git apply 18293.patch
 ```
 
 Now we can finally starts to build `tfcompile` with Bazel!
 
 ```
-C:\tensorflow>bazel build --config=opt //tensorflow/compiler/aot:tfcompile
+C:\tensorflow>bazel build -c opt --config=opt //tensorflow/compiler/aot:tfcompile
 ```
 
 If everything goes well, you should have `tfcompile` installed at
@@ -211,9 +143,6 @@ cc_binary(
     "//tensorflow/core:framework_lite",
     "//tensorflow/compiler/tf2xla/kernels:index_ops_kernel_argmax_float_1d",
     "//tensorflow/compiler/tf2xla/kernels:index_ops_kernel_argmax_float_2d",
-    "//tensorflow/compiler/xla/service/cpu:cpu_runtime_avx",
-    "//tensorflow/compiler/xla/service/cpu:cpu_runtime_neon",
-    "//tensorflow/compiler/xla/service/cpu:cpu_runtime_sse4_1",
     "//tensorflow/compiler/xla/service/cpu:runtime_conv2d",
     "//tensorflow/compiler/xla/service/cpu:runtime_matmul",
     "//tensorflow/compiler/xla/service/cpu:runtime_single_threaded_conv2d",
@@ -226,7 +155,7 @@ cc_binary(
 Now build and run the C++ demo.
 
 ```
-C:\tensorflow>bazel build --config=opt //:mnist
+C:\tensorflow>bazel build -c opt --config=opt //:mnist
 C:\tensorflow>bazel-bin\mnist.exe
 ```
 
