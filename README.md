@@ -21,28 +21,14 @@ C:\>cd tensorflow
 
 ## Configure Tensorflow
 
-If you have not installed Bazel, download `bazel-0.14.0-windows-x86_64.exe`
+If you have not installed Bazel, download `bazel-0.15.0-windows-x86_64.exe`
 from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put it in `PATH`.
-
-> Note:
->
-> As of the moment of writing this, building Tensorflow with Bazel on Windows
-> is still very experimental. There is no CI test that prevents anyone from
-> landing changes that will break Bazel build on Windows, so the build breaks
-> frequently.
->
-> Go to https://ci.tensorflow.org/job/tf-master-win-bzl/ to check if the build
-> history is blue (good) or red (bad).
-
-Due to https://github.com/bazelbuild/bazel/issues/4149, we need to set `TMP`,
-`TEMP` and `TMPDIR` to shorter name like `C:\tmp`.
 
 Run `configure.py` (see https://www.tensorflow.org/install/install_sources).
 
 Open `.tf_configure.bazelrc` with your text editor.
 
-Add the following code to `.tf_configure.bazelrc` until https://github.com/tensorflow/tensorflow/pull/15466
-decides a better solution to set up global compile flags:
+Add the following code to `.tf_configure.bazelrc` to set up global compile flags:
 
 ```
 build --copt=-DNOGDI
