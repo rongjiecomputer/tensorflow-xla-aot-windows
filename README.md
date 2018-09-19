@@ -21,7 +21,7 @@ C:\>cd tensorflow
 
 ## Configure Tensorflow
 
-If you have not installed Bazel, download `bazel-0.15.0-windows-x86_64.exe`
+If you have not installed Bazel, download `bazel-0.17.1-windows-x86_64.exe`
 from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put it in `PATH`.
 
 Run `configure.py` (see https://www.tensorflow.org/install/install_sources).
@@ -33,18 +33,6 @@ Add the following code to `.tf_configure.bazelrc` to set up global compile flags
 ```
 build --copt=-DNOGDI
 build --host_copt=-DNOGDI
-```
-
-## Apply patch to build LLVM with Bazel on Windows
-
-I sent a PR to Tensorflow so that LLVM can be built directly with Bazel on Windows
-[tensorflow/tensorflow#18293](https://github.com/tensorflow/tensorflow/pull/18293).
-Before the PR is merged, you can download the patch and apply it yourself.
-
-https://patch-diff.githubusercontent.com/raw/tensorflow/tensorflow/pull/18293.patch
-
-```
-C:\tensorflow>git apply 18293.patch
 ```
 
 Now we can finally starts to build `tfcompile` with Bazel!
