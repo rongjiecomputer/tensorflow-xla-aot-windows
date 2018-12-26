@@ -21,14 +21,17 @@ C:\>cd tensorflow
 
 ## Configure Tensorflow
 
-If you have not installed Bazel, download `bazel-0.17.1-windows-x86_64.exe`
+If you have not installed Bazel, download `bazel-0.21.0-windows-x86_64.exe`
 from https://github.com/bazelbuild/bazel/releases, rename it to `bazel.exe` and put it in `PATH`.
 
 Run `configure.py` (see https://www.tensorflow.org/install/install_sources).
 
-Open `.tf_configure.bazelrc` with your text editor.
+- When asked with `Do you wish to build TensorFlow with XLA JIT support? [y/N]`, enter `y`.
+- When asked with `Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is /arch:AVX]:`, recommend using `/arch:AVX2` if your processor is Intel Haswell and above.
 
-Add the following code to `.tf_configure.bazelrc` to set up global compile flags:
+Create/open `.bazelrc.user` with your text editor.
+
+Add the following code to `.bazelrc.user` to set up global compile flags:
 
 ```
 build --copt=-DNOGDI
